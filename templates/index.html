@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pillar Market — Ceny Ofertowe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --green: #084b01;
+            --burgundy: #8B0000;
+            --beige: #FEF9E9;
+            --border: #E5E5E0;
+            --text: #2C2C2C;
+            --sub: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Barlow', sans-serif;
+            background-color: var(--green);
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1' stroke-opacity='0.2'%3E%3Cpath d='M5 55 L5 40 L12.5 32.5 L20 40 L20 55 M27.5 55 L27.5 20 L42.5 20 L42.5 55 M47.5 55 L47.5 45 L52.5 40 L57.5 45 L57.5 55'/%3E%3C/g%3E%3C/svg%3E");
+            min-height: 100vh;
+            padding: 30px 20px 60px;
+            color: var(--text);
+        }
+        .wrapper { max-width: 900px; margin: 0 auto; }
+
+        /* HEADER */
+        .site-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 42px;
+            font-weight: 300;
+            color: white;
+            letter-spacing: -1px;
+        }
+        .logo span { font-weight: 700; color: #adc85d; }
+        .logo-sub {
+            font-size: 13px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.6);
+            margin-top: 4px;
+        }
+
+        /* SEARCH CARD */
+        .search-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 24px;
+        }
+        .search-title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 20px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--sub);
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: 'Barlow', sans-serif;
+            color: var(--text);
+            background: white;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        input:focus, select:focus { border-color: var(--green); }
+        .btn-search {
+            width: 100%;
+            height: 52px;
+            background: var(--burgundy);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Barlow', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn-search:hover { opacity: 0.9; }
+        .btn-search:active { transform: scale(0.99); }
+        .btn-search:disabled { opacity: 0.5; cursor: wait; }
+
+        /* STATUS */
+        .status {
+            text-align: center;
+            color: white;
+            font-size: 15px;
+            padding: 16px;
+            display: none;
+        }
+        .spinner {
+            display: inline-block;
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* META STATS */
+        .meta-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 28px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .meta-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .meta-title { font-size: 18px; font-weight: 700; color: var(--green); }
+        .meta-sub { font-size: 13px; color: var(--sub); margin-top: 2px; }
+        .meta-stats {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+        .stat { text-align: center; }
+        .stat-val { font-size: 22px; font-weight: 700; color: var(--text); }
+        .stat-lbl { font-size: 11px; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+        .stat-highlight .stat-val { color: var(--burgundy); }
+        .estimated {
+            background: var(--green);
+            color: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        .estimated-val { font-size: 26px; font-weight: 700; }
+        .estimated-lbl { font-size: 11px; opacity: 0.7; letter-spacing: 1px; text-transform: uppercase; }
+
+        /* LISTING CARDS */
+        .listings { display: flex; flex-direction: column; gap: 14px; }
+        .listing-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: grid;
+            grid-template-columns: auto auto 1fr auto;
+            gap: 16px;
+            align-items: center;
+            transition: box-shadow 0.2s;
+        }
+        .listing-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.14); }
+
+        /* Score badge */
+        .score-badge {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+        .score-high { background: #e8f5e9; color: #2D5A27; }
+        .score-mid  { background: #fff8e1; color: #856404; }
+        .score-low  { background: #fce4e4; color: #8B0000; }
+        .score-num { font-size: 18px; line-height: 1; }
+        .score-pct { font-size: 9px; opacity: 0.7; }
+
+        /* Card img */
+        .card-img {
+            width: 220px; height: 165px;
+            border-radius: 10px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .card-img-placeholder {
+            width: 220px; height: 165px;
+            border-radius: 10px;
+            background: #f4f4f2;
+            flex-shrink: 0;
+        }
+
+        /* Card body */
+        .card-body {}
+        .card-price { font-size: 22px; font-weight: 700; color: var(--text); }
+        .card-ppm2 { font-size: 13px; color: var(--sub); margin-left: 8px; }
+        .card-chips {
+            display: flex; gap: 8px; flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .chip {
+            background: #f4f4f2;
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--sub);
+        }
+        .chip-area { background: #e8f5e9; color: #2D5A27; }
+        .card-addr { font-size: 15px; color: var(--sub); margin-top: 6px; }
+        .card-city { font-size: 14px; color: #555; font-weight: 700; }
+        .card-date { font-size: 14px; color: #aaa; margin-top: 2px; }
+
+        /* Card right */
+        .card-right { text-align: right; }
+        .btn-link {
+            display: inline-block;
+            padding: 9px 18px;
+            background: var(--green);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+        .btn-link:hover { opacity: 0.85; }
+        .btn-link-morizon {
+            background: #0077b6;
+            margin-top: 6px;
+        }
+
+        /* Street match highlight */
+        .listing-card.street-match {
+            border-left: 4px solid #adc85d;
+            background: #f9fdf2;
+        }
+        .street-badge {
+            display: inline-block;
+            background: #adc85d;
+            color: #1a3a00;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        /* ERROR */
+        .error-card {
+            background: #fce4e4;
+            border-radius: 14px;
+            padding: 20px 24px;
+            color: var(--burgundy);
+            font-weight: 600;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid-3 { grid-template-columns: 1fr 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .listing-card { grid-template-columns: auto 1fr; }
+            .card-img, .card-img-placeholder { display: none; }
+            .card-right { grid-column: 1 / -1; text-align: left; }
+            .meta-stats { gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+
+    <div class="site-header">
+        <div class="logo">Pillar<span>Market</span></div>
+        <div class="logo-sub">Ceny ofertowe · OtoDom + Morizon</div>
+    </div>
+
+    <div class="search-card">
+        <div class="search-title">Parametry nieruchomości</div>
+
+        <div class="form-grid">
+            <div>
+                <label>Ulica, Miasto</label>
+                <input type="text" id="address" placeholder="np. Marszałkowska, Warszawa" value="">
+            </div>
+            <div>
+                <label>Nr budynku</label>
+                <input type="text" id="house_number" placeholder="nr" value="">
+            </div>
+        </div>
+
+        <div class="form-grid-3">
+            <div>
+                <label>Metraż (m²)</label>
+                <input type="number" id="area" placeholder="wpisz metraż" min="15" max="300" value="">
+            </div>
+            <div id="rooms-group">
+                <label>Pokoje</label>
+                <select id="rooms">
+                    <option value="" disabled selected>Wybierz...</option>
+                    <option value="1">1 pokój</option>
+                    <option value="2">2 pokoje</option>
+                    <option value="3">3 pokoje</option>
+                    <option value="4">4 pokoje</option>
+                    <option value="5">5+ pokoi</option>
+                </select>
+            </div>
+            <div>
+                <label>Piętro</label>
+                <select id="floor">
+                    <option value="" disabled selected>Wybierz...</option>
+                    <option value="0">Parter</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10+</option>
+                </select>
+            </div>
+            <div>
+                <label>Rodzaj zabudowy</label>
+                <select id="building_type" onchange="onBuildingTypeChange(this.value)">
+                    <option value="all" selected>Wszystkie</option>
+                    <option value="blok">Blok</option>
+                    <option value="kamienica">Kamienica</option>
+                    <option value="apartamentowiec">Apartamentowiec</option>
+                    <option value="dom">Dom</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-search" id="btnSearch" onclick="runSearch()">
+            Szukaj ofert porównywalnych
+        </button>
+    </div>
+
+    <div class="status" id="status">
+        <span class="spinner"></span> Szukam porównywalnych ofert na OtoDom i Morizon...
+    </div>
+
+    <div class="error-card" id="errorCard"></div>
+
+    <div class="meta-bar" id="metaBar">
+        <div class="meta-top">
+            <div>
+                <div class="meta-title" id="metaTitle"></div>
+                <div class="meta-sub" id="metaSub"></div>
+            </div>
+            <div class="estimated">
+                <div class="estimated-val" id="estimatedPrice"></div>
+                <div class="estimated-lbl">szac. cena ofertowa</div>
+            </div>
+        </div>
+        <div class="meta-stats">
+            <div class="stat">
+                <div class="stat-val" id="statCount"></div>
+                <div class="stat-lbl">Ofert</div>
+            </div>
+            <div class="stat stat-highlight">
+                <div class="stat-val" id="statMedian"></div>
+                <div class="stat-lbl">Mediana PLN/m²</div>
+            </div>
+            <div class="stat">
+                <div class="stat-val" id="statMin"></div>
+                <div class="stat-lbl">Min PLN/m²</div>
+            </div>
+            <div class="stat">
+                <div class="stat-val" id="statMax"></div>
+                <div class="stat-lbl">Max PLN/m²</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="listings" id="listings"></div>
+
+</div>
+
+<script>
+function fmt(n) {
+    return n.toLocaleString('pl-PL');
+}
+
+function onBuildingTypeChange(val) {
+    const roomsGroup = document.getElementById('rooms-group');
+    const roomsSel = document.getElementById('rooms');
+    if (val === 'dom') {
+        roomsGroup.style.opacity = '0.4';
+        roomsGroup.style.pointerEvents = 'none';
+        roomsSel.value = '';
+    } else {
+        roomsGroup.style.opacity = '';
+        roomsGroup.style.pointerEvents = '';
+    }
+}
+
+async function runSearch() {
+    const address = document.getElementById('address').value.trim();
+    const area = parseFloat(document.getElementById('area').value);
+    const buildingType = document.getElementById('building_type').value;
+    const rooms = document.getElementById('rooms').value;
+
+    if (!address || !area) {
+        alert('Podaj adres i metraż.');
+        return;
+    }
+    if (buildingType !== 'dom' && !rooms) {
+        alert('Wybierz liczbę pokoi.');
+        return;
+    }
+
+    const btn = document.getElementById('btnSearch');
+    btn.disabled = true;
+    document.getElementById('status').style.display = 'block';
+    document.getElementById('metaBar').style.display = 'none';
+    document.getElementById('errorCard').style.display = 'none';
+    document.getElementById('listings').innerHTML = '';
+
+    try {
+        const resp = await fetch('/search', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                address: address,
+                house_number: document.getElementById('house_number').value.trim(),
+                area: area,
+                rooms: rooms,
+                floor: document.getElementById('floor').value,
+                building_type: buildingType,
+            })
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok) {
+            showError(data.error || 'Nieznany błąd.');
+            return;
+        }
+
+        renderResults(data);
+    } catch(e) {
+        showError('Błąd połączenia: ' + e.message);
+    } finally {
+        btn.disabled = false;
+        document.getElementById('status').style.display = 'none';
+    }
+}
+
+function showError(msg) {
+    const el = document.getElementById('errorCard');
+    el.textContent = '⚠ ' + msg;
+    el.style.display = 'block';
+}
+
+function renderResults(data) {
+    const { listings, meta } = data;
+
+    // Meta bar
+    document.getElementById('metaTitle').textContent = `Oferty z okolicy: ${meta.area_label}`;
+    const streetInfo = meta.street_matches > 0
+        ? ` · <span style="color:#2D5A27;font-weight:700">${meta.street_matches} z ul. ${meta.target_street}</span>`
+        : '';
+    document.getElementById('metaSub').innerHTML =
+        `${meta.query.address} · ${meta.query.area}m² · ${meta.query.rooms} pok. · metraż ${meta.query.area_min}–${meta.query.area_max}m²${streetInfo}`;
+    document.getElementById('estimatedPrice').textContent = fmt(meta.estimated_price) + ' PLN';
+    document.getElementById('statCount').textContent = meta.total;
+    document.getElementById('statMedian').textContent = fmt(meta.median_ppm2);
+    document.getElementById('statMin').textContent = fmt(meta.min_ppm2);
+    document.getElementById('statMax').textContent = fmt(meta.max_ppm2);
+    document.getElementById('metaBar').style.display = 'block';
+
+    // Cards
+    const container = document.getElementById('listings');
+    container.innerHTML = '';
+
+    listings.forEach((lst, i) => {
+        const rawScore = lst.street_match ? lst.score - 50 : lst.score;
+        const scoreClass = rawScore >= 70 ? 'score-high' : rawScore >= 45 ? 'score-mid' : 'score-low';
+        const card = document.createElement('div');
+        card.className = 'listing-card' + (lst.street_match ? ' street-match' : '');
+        card.innerHTML = `
+            <div class="score-badge ${scoreClass}">
+                <span class="score-num">${rawScore}</span>
+                <span class="score-pct">pkt</span>
+            </div>
+            ${lst.image ? `<img class="card-img" src="${lst.image}" alt="" loading="lazy">` : '<div class="card-img-placeholder"></div>'}
+            <div class="card-body">
+                <div>
+                    <span class="card-price">${fmt(lst.price)} PLN</span>
+                    <span class="card-ppm2">${fmt(lst.ppm2)} PLN/m²</span>
+                    ${lst.street_match ? '<span class="street-badge">ta ulica</span>' : ''}
+                </div>
+                <div class="card-chips">
+                    <span class="chip chip-area">${lst.area} m²</span>
+                    <span class="chip">${lst.rooms_label} pok.</span>
+                    <span class="chip">${lst.floor_label}</span>
+                </div>
+                <div class="card-addr">${lst.address}${lst.city && lst.city !== lst.address ? ` <span class="card-city">${lst.city}</span>` : ''}</div>
+                <div class="card-date">${lst.date}</div>
+            </div>
+            <div class="card-right">
+                ${(function(){
+                    const srcLabel = lst.source === 'morizon' ? 'Morizon' : 'OtoDom';
+                    const srcClass = lst.source === 'morizon' ? 'btn-link btn-link-morizon' : 'btn-link';
+                    const main = lst.link ? `<a href="${lst.link}" target="_blank" class="${srcClass}">${srcLabel} →</a>` : '';
+                    const alts = (lst.alt_links || []).map(al => `<a href="${al.link}" target="_blank" class="btn-link ${al.source === 'morizon' ? 'btn-link-morizon' : ''}">${al.source === 'morizon' ? 'Morizon' : 'OtoDom'} →</a>`).join('');
+                    return main + alts;
+                })()}
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+</script>
+</body>
+</html>
