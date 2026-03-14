@@ -167,16 +167,21 @@ def build_otodom_path_for_small_town(geo):
     county = re.sub(r'^powiat\s+', '', geo.get('county', ''), flags=re.I).strip()
     municipality = re.sub(r'^gmina\s+', '', geo.get('municipality', ''), flags=re.I).strip()
     village = geo.get('village', '') or geo.get('city', '')
+    city = geo.get('city', '')
 
     vs = slugify(state)
     vc = slugify(county)
     vm = slugify(municipality)
     vv = slugify(village)
+    vcity = slugify(city)
 
     if vs and vc and vm and vv:
         return f'{vs}/{vc}/{vm}/{vv}'
     if vs and vc and vv:
         return f'{vs}/{vc}/{vv}'
+    # Miasta na prawach powiatu (Płock, Łódź itp.) - brak county/municipality w Nominatim
+    if vs and vcity and not vc and not vm:
+        return f'{vs}/{vcity}/{vcity}/{vcity}'
     return None
 
 
