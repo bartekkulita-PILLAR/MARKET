@@ -686,7 +686,11 @@ def search():
 def api_search():
     address = request.args.get('address', '').strip()
     area = float(request.args.get('area', 0))
-    rooms = int(request.args.get('rooms', 0))
+    rooms_raw = request.args.get('rooms', '0')
+    try:
+        rooms = int(rooms_raw)
+    except ValueError:
+        rooms = 0
     floor = int(request.args.get('floor', 0))
     building_type = request.args.get('building_type', 'all')
 
