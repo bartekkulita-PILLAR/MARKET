@@ -63,6 +63,41 @@ ROOMS_LABEL = {'ONE': '1', 'TWO': '2', 'THREE': '3', 'FOUR': '4',
 
 DISTRICT_CITY_WIDE_FALLBACK = {'praga-poludnie', 'praga-polnoc'}
 
+# Statyczna mapa dzielnic Warszawy -> subdzielnice OtoDom
+# Source of truth: otodom_warsaw_districts.json
+WARSAW_DISTRICTS = {
+    "bemowo": {"Jelonki Północne": "jelonki-polnocne", "Bemowo-Lotnisko": "bemowo-lotnisko", "Górce": "gorce", "Fort Bema": "fort-bema", "Fort Radiowo": "fort-radiowo", "Chrzanów": "chrzanow", "Jelonki Południowe": "jelonki-poludniowe"},
+    "bialoleka": {"Brzeziny": "brzeziny", "Nowodwory": "nowodwory", "Żerań": "zeran", "Grodzisk": "grodzisk", "Kobiałka": "kobialka", "Tarchomin": "tarchomin", "Szamocin": "szamocin", "Choszczówka": "choszczowka"},
+    "bielany": {"Wrzeciono": "wrzeciono", "Chomiczówka": "chomiczowka", "Radiowo": "radiowo", "Słodowiec": "slodowiec", "Sady Żoliborskie": "sady-zoliborskie", "Stare Bielany": "stare-bielany", "Huta": "huta", "Młociny": "mlociny", "Piaski": "piaski", "Marymont-Kaskada": "marymont-kaskada", "Las Bielański": "las-bielanski"},
+    "mokotow": {"Siekierki": "siekierki", "Czerniaków": "czerniakow", "Ksawerów": "ksawerow", "Służewiec": "sluzewiec", "Stary Mokotów": "stary-mokotow", "Śródmieście Południowe": "srodmiescie-poludniowe", "Sielce": "sielce", "Służew": "sluzew", "Stegny": "stegny", "Wierzbno": "wierzbno", "Augustówka": "augustowka", "Wilanów Niski": "wilanow-niski"},
+    "ochota": {"Filtry": "filtry", "Szczęśliwice": "szczesliwice", "Stara Ochota": "stara-ochota", "Rakowiec": "rakowiec", "Raków": "rakow"},
+    "praga-poludnie": {},
+    "praga-polnoc": {},
+    "rembertow": {"Stary Rembertów": "stary-rembertow", "Kawęczyn-Wygoda": "kaweczyn-wygoda", "Nowy Rembertów": "nowy-rembertow"},
+    "srodmiescie": {"Śródmieście Północne": "srodmiescie-polnocne", "Powiśle": "powisle", "Muranów": "muranow", "Nowolipki": "nowolipki", "Śródmieście Południowe": "srodmiescie-poludniowe", "Solec": "solec", "Stare Miasto": "stare-miasto", "Nowe Miasto": "nowe-miasto"},
+    "targowek": {"Bródno": "brodno", "Zacisze": "zacisze", "Elsnerów": "elsnerow", "Targówek Fabryczny": "targowek-fabryczny", "Targówek Mieszkaniowy": "targowek-mieszkaniowy"},
+    "ursus": {"Skorosze": "skorosze", "Niedźwiadek": "niedzwiadek", "Gołąbki": "golabki", "Szamoty": "szamoty"},
+    "ursynow": {"Natolin": "natolin", "Kabaty": "kabaty", "Imielin": "imielin", "Stokłosy": "stoklosy", "Pyry": "pyry", "Grabów": "grabow", "Jeziorki Północne": "jeziorki-polnocne"},
+    "wawer": {"Marysin Wawerski": "marysin-wawerski", "Anin": "anin", "Sadul": "sadul", "Radość": "radosc", "Międzylesie": "miedzylesie", "Falenica": "falenica", "Zerzeń": "zerzen", "Aleksandrów": "aleksandrow"},
+    "wesola": {"Stara Miłosna": "stara-milosna", "Groszówka": "groszowka"},
+    "wilanow": {"Błonia Wilanowskie": "blonia-wilanowskie", "Wilanów Niski": "wilanow-niski", "Zawady": "zawady", "Powsin": "powsin", "Natolin": "natolin", "Wilanów Wysoki": "wilanow-wysoki"},
+    "wlochy": {"Raków": "rakow", "Stare Włochy": "stare-wlochy", "Salomea": "salomea", "Opacz Wielka": "opacz-wielka", "Nowe Włochy": "nowe-wlochy"},
+    "wola": {"Czyste": "czyste", "Ulrychów": "ulrychow", "Mirów": "mirow", "Odolany": "odolany", "Młynów": "mlynow", "Koło": "kolo", "Powązki": "powazki", "Nowolipki": "nowolipki"},
+    "zoliborz": {"Stary Żoliborz": "stary-zoliborz", "Żoliborz Dziennikarski": "zoliborz-dziennikarski", "Sady Żoliborskie": "sady-zoliborskie", "Plac Wilsona": "plac-wilsona", "Żoliborz Oficerski": "zoliborz-oficerski", "Marymont-Potok": "marymont-potok", "Marymont-Ruda": "marymont-ruda"},
+}
+
+# Aliasy: nazwy z Nominatim -> slug OtoDom (gdy Nominatim używa innej nazwy niż OtoDom)
+NOMINATIM_TO_OTODOM_ALIASES = {
+    "miasteczko-wilanow": "blonia-wilanowskie",
+    "nowy-wilanow": "blonia-wilanowskie",
+    "wilanow-krolewski": "wilanow-wysoki",
+    "stary-imielin": "imielin",
+    "krolikarnia": "stary-mokotow",
+    "muranow-nowe-miasto": "muranow",
+    "srodmiescie": "srodmiescie-polnocne",
+    "nowe-kabaty": "kabaty",
+}
+
 CITY_PATHS = {
     'warszawa': 'mazowieckie/warszawa/warszawa/warszawa',
     'krakow': 'malopolskie/krakow/krakow/krakow',
@@ -222,18 +257,29 @@ def find_otodom_area(city_slug, quarter, suburb, neighbourhood='', lat=None, lon
     if not district_slug:
         return None, None
 
-    subdistricts = get_otodom_subdistricts(city_path, district_slug)
+    # Dla Warszawy: uzyj statycznej mapy (stabilna, nie zalezy od scrapowania)
+    if city_slug == 'warszawa' and district_slug in WARSAW_DISTRICTS:
+        subdistricts = WARSAW_DISTRICTS[district_slug]
+    else:
+        subdistricts = get_otodom_subdistricts(city_path, district_slug)
+
     if not subdistricts:
         return district_slug, None
 
     subdistrict_slugs = set(subdistricts.values())
 
+    # 1. Bezposrednie dopasowanie nazwy z Nominatim
     for candidate in [quarter, neighbourhood]:
         if candidate:
             s = slugify(candidate)
             if s in subdistrict_slugs:
                 return district_slug, s
+            # 2. Sprawdz aliasy (Nominatim -> OtoDom)
+            alias = NOMINATIM_TO_OTODOM_ALIASES.get(s)
+            if alias and alias in subdistrict_slugs:
+                return district_slug, alias
 
+    # 3. Fallback: geocoding najblizszej subdzielnicy
     if lat and lon:
         city_name = suburb or city_slug
         best_slug = None
