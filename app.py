@@ -789,14 +789,46 @@ def search_internal(address, house_number, area, rooms, floor, building_type):
         district_name_filter = None
         loc_override = build_otodom_path_for_small_town(geo)
 
+    # Krok 1: standardowe parametry (area +-25%, pages=3)
     raw_items, location_path = fetch_otodom_listings(
         city_slug, district_slug, effective_residential,
-        rooms_str, area_min, area_max, pages=2, building_type=building_type,
+        rooms_str, area_min, area_max, pages=3, building_type=building_type,
         location_path_override=loc_override, district_name_filter=district_name_filter
     )
 
+    # Krok 2: fallback - rozszerzony metraz (area +-50%) jesli <8 ofert
+    area_min2 = int(area * 0.5)
+    area_max2 = int(area * 1.5)
+    if len(raw_items) < 8:
+        raw_items2, _ = fetch_otodom_listings(
+            city_slug, district_slug, effective_residential,
+            rooms_str, area_min2, area_max2, pages=3, building_type=building_type,
+            location_path_override=loc_override, district_name_filter=district_name_filter
+        )
+        if len(raw_items2) > len(raw_items):
+            raw_items = raw_items2
+
+    # Krok 3: fallback - bez filtra pokoi jesli nadal <8 ofert
+    if len(raw_items) < 8:
+        raw_items3, _ = fetch_otodom_listings(
+            city_slug, district_slug, effective_residential,
+            'all', area_min2, area_max2, pages=3, building_type=building_type,
+            location_path_override=loc_override, district_name_filter=district_name_filter
+        )
+        if len(raw_items3) > len(raw_items):
+            raw_items = raw_items3
+
     listings = [parse_listing(it) for it in raw_items]
     listings = remove_duplicates(listings)
+
+    # Morizon - dodatkowe zrodlo ofert
+    morizon_raw = fetch_morizon_listings(city_slug, district_slug, rooms_str, area_min, area_max, pages=2)
+    if len(morizon_raw) < 5:
+        morizon_raw = fetch_morizon_listings(city_slug, district_slug, 'all', area_min2, area_max2, pages=2)
+    morizon_listings = [parse_morizon_listing(o) for o in morizon_raw]
+    listings = listings + morizon_listings
+
+    listings = dedup_cross_portal(listings)
     listings = remove_outliers(listings)
 
     for lst in listings:
