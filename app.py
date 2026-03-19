@@ -330,6 +330,7 @@ def fetch_otodom_listings(city_slug, district_slug, residential_slug, rooms, are
             f'{location_path}'
             f'?areaMin={area_min}&areaMax={area_max}'
             f'{building_type_param}'
+            f'&market=SECONDARY'
             f'&viewType=listing&limit=36&page={page}'
         )
         try:
