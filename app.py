@@ -820,15 +820,6 @@ def search_internal(address, house_number, area, rooms, floor, building_type):
 
     listings = [parse_listing(it) for it in raw_items]
     listings = remove_duplicates(listings)
-
-    # Morizon - dodatkowe zrodlo ofert
-    morizon_raw = fetch_morizon_listings(city_slug, district_slug, rooms_str, area_min, area_max, pages=2)
-    if len(morizon_raw) < 5:
-        morizon_raw = fetch_morizon_listings(city_slug, district_slug, 'all', area_min2, area_max2, pages=2)
-    morizon_listings = [parse_morizon_listing(o) for o in morizon_raw]
-    listings = listings + morizon_listings
-
-    listings = dedup_cross_portal(listings)
     listings = remove_outliers(listings)
 
     for lst in listings:
