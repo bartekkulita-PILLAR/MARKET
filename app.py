@@ -819,6 +819,29 @@ def search_internal(address, house_number, area, rooms, floor, building_type):
         if len(raw_items3) > len(raw_items):
             raw_items = raw_items3
 
+    # Krok 4: fallback - caly district bez subdistrict (jesli osiedle ma malo ofert,
+    # np. Stoklosy w Ursynowie 3-pok zwraca 0 - rozszerzamy do calego Ursynowa).
+    # Tylko gdy mielismy ustalony residential_slug - inaczej i tak juz ladujemy district.
+    if len(raw_items) < 8 and effective_residential and not loc_override:
+        raw_items4, location_path4 = fetch_otodom_listings(
+            city_slug, district_slug, None,
+            rooms_str, area_min, area_max, pages=3, building_type=building_type,
+            location_path_override=None, district_name_filter=district_name_filter
+        )
+        if len(raw_items4) > len(raw_items):
+            raw_items = raw_items4
+            location_path = location_path4
+        # Krok 4b: jesli nadal malo, district + szerszy metraz + dowolne pokoje
+        if len(raw_items) < 8:
+            raw_items4b, location_path4b = fetch_otodom_listings(
+                city_slug, district_slug, None,
+                'all', area_min2, area_max2, pages=3, building_type=building_type,
+                location_path_override=None, district_name_filter=district_name_filter
+            )
+            if len(raw_items4b) > len(raw_items):
+                raw_items = raw_items4b
+                location_path = location_path4b
+
     listings = [parse_listing(it) for it in raw_items]
     listings = remove_duplicates(listings)
 
